@@ -222,7 +222,7 @@ export function cypherMutation(
     WITH apoc.map.values(value, [keys(value)[0]])[0] AS ${variableName}
     RETURN ${variableName} {${subQuery}} AS ${variableName}${orderByValue} ${outerSkipLimit}`;
   } else if (isCreateMutation(resolveInfo)) {
-    query = `CREATE (${variableName}:${typeName}) `;
+    query = `MERGE (${variableName}:${typeName}) `;
     query += `SET ${variableName} = $params `;
     //query += `RETURN ${variable}`;
 
@@ -308,7 +308,7 @@ export function cypherMutation(
       resolveInfo.schema.getMutationType().getFields()[resolveInfo.fieldName]
         .astNode.arguments[1].name.value
     }})
-      CREATE (${fromVar})-[:${relationshipName}]->(${toVar})
+      MERGE (${fromVar})-[:${relationshipName}]->(${toVar})
       RETURN ${fromVar} {${subQuery}} AS ${fromVar};`;
   } else if (isUpdateMutation(resolveInfo)) {
     const idParam = resolveInfo.schema.getMutationType().getFields()[
@@ -440,40 +440,38 @@ RETURN ${fromVar} {${subQuery}} AS ${fromVar};`;
   return [query, params];
 }
 
-export const augmentSchema = (schema) => {
+export const augmentSchema = schema => {
   let typeMap = extractTypeMapFromSchema(schema);
   let queryResolvers = extractResolvers(schema.getQueryType());
   let mutationResolvers = extractResolvers(schema.getMutationType());
   return augmentedSchema(typeMap, queryResolvers, mutationResolvers);
-}
+};
 
 export const makeAugmentedSchema = ({
-   schema,
-   typeDefs,
-   resolvers,
-   logger,
-   allowUndefinedInResolve=false,
-   resolverValidationOptions={},
-   directiveResolvers=null,
-   schemaDirectives=null,
-   parseOptions={},
-   inheritResolversFromInterfaces=false
-  }) => {
-    if(schema) {
-      return augmentSchema(schema);
-    }
-    if(!typeDefs) throw new Error(
-      'Must provide typeDefs'
-    );
-    return makeAugmentedExecutableSchema({
-      typeDefs,
-      resolvers,
-      logger,
-      allowUndefinedInResolve,
-      resolverValidationOptions,
-      directiveResolvers,
-      schemaDirectives,
-      parseOptions,
-      inheritResolversFromInterfaces
-    });
-}
+  schema,
+  typeDefs,
+  resolvers,
+  logger,
+  allowUndefinedInResolve = false,
+  resolverValidationOptions = {},
+  directiveResolvers = null,
+  schemaDirectives = null,
+  parseOptions = {},
+  inheritResolversFromInterfaces = false
+}) => {
+  if (schema) {
+    return augmentSchema(schema);
+  }
+  if (!typeDefs) throw new Error('Must provide typeDefs');
+  return makeAugmentedExecutableSchema({
+    typeDefs,
+    resolvers,
+    logger,
+    allowUndefinedInResolve,
+    resolverValidationOptions,
+    directiveResolvers,
+    schemaDirectives,
+    parseOptions,
+    inheritResolversFromInterfaces
+  });
+};

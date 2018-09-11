@@ -46,7 +46,6 @@
     "prettier": "^1.13.5"
   },
   "dependencies": {
-    "graphql": "^0.13.2",
     "lodash": "^4.17.10",
     "neo4j-driver": "^1.6.1"
   },
